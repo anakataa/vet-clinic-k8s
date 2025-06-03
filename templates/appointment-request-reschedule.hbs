@@ -1,0 +1,44 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rescheduled Appointment</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 40px;">
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"
+    >
+      <tr>
+        <td align="center" style="padding-bottom: 20px;">
+          <h2 style="color: #FF9800; margin: 0;">⏰ Your Appointment Has Been Rescheduled</h2>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="font-size: 16px; color: #333;">Hello {{userName}} {{userSurname}},</p>
+
+          <p style="font-size: 16px; color: #333;">
+            Your appointment has been rescheduled. Please review the new proposed date and time below:
+          </p>
+
+          <p style="font-size: 16px; color: #333;">
+            <strong>New Time:</strong>
+            {{newTime}}
+          </p>
+
+          <p style="font-size: 14px; color: #999;">
+            If this time does not work for you, please contact us to reschedule.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+
+          <p style="font-size: 16px; color: #333;">We appreciate your understanding,</p>
+          <p style="font-size: 16px; color: #4CAF50; font-weight: bold;">Vet Clinic Team</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
