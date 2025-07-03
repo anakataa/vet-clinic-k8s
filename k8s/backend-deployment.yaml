@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vet-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vet-backend
+  template:
+    metadata:
+      labels:
+        app: vet-backend
+    spec:
+      containers:
+      - name: vet-backend
+        image: vetclinic/backend:latest
+        ports:
+        - containerPort: 3000  # Порт, на котором работает приложение в контейнере
+        envFrom:
+        - configMapRef:
+            name: backend-config
+

@@ -1,0 +1,131 @@
+---
+# 1. Секрет с учётными данными Postgres
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+type: Opaque
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: main
+---
+# 2. Deployment и Service для Postgres
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pgdata
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# 3. Секрет для бэкенда (DATABASE_URL)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-env
+type: Opaque
+stringData:
+  DATABASE_URL: postgresql://postgres:postgres@postgres:5432/main
+---
+# 4. Deployment бэкенда
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vet-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vet-backend
+  template:
+    metadata:
+      labels:
+        app: vet-backend
+    spec:
+      containers:
+      - name: vet-backend
+        image: vetclinic/backend:latest
+        imagePullPolicy: IfNotPresent   # Чтобы кластеры, где образ локально, могли его взять
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: backend-env
+---
+# 5. Service для бэкенда
+apiVersion: v1
+kind: Service
+metadata:
+  name: vet-backend-service
+spec:
+  type: NodePort
+  selector:
+    app: vet-backend
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 32599
+---
+# 6. Ingress (если нужно)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vet-ingress
+spec:
+  rules:
+  - host: vet.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vet-backend-service
+            port:
+              number: 80

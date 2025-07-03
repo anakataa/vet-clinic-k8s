@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  DJANGO_SETTINGS_MODULE: vetclinic.settings
+  SOME_OTHER_CONFIG: "value"
